@@ -1,0 +1,160 @@
+{
+	"womanArray":
+	   [
+	   {
+	   "womanID": "0121230250012001", // city(3 DIGITS)+slum(3 DIGITIS)+worker(3 DIGITIS)++womannamefirsttwolettersincapital+dobdatedobmonthdobyear 
+	   	"displayID": "", //house#.womanNo
+			"name": "seema",
+			"dob": "16/12/1988",			
+			"husbandName":"govind",
+			"phone":  "5388234458",
+			"house":"0012",
+			"slum":"123",
+			"city":"012",
+			"worker":"025",
+			"pregnencyCount":"3",
+			"liveBirthsCount":"2",
+			"livingChildrenCount":"2",
+			"registrationDate":"16/12/2014",
+			"isPregnant":"N",
+			"isCurrentlyBreastFeeding": false,
+			"familyPlanningVisits":[
+				{
+					"methodID": "0",
+					"methodName": "None",
+					"methodUseDate": "16/04/2015",
+					"lastUpdateDateTime": "16/04/2015 20:00:00"
+				},
+				{
+					"methodID": "4",
+					"methodName": "IUCD",
+					"methodUseDate": "16/04/2015",
+					"lastUpdateDateTime": "16/04/2015 20:00:00"
+				}
+			],
+		
+			"LMP": "16/04/2015",
+			"EDD": "16/04/2015",
+			"deliveryDate":"16/04/2015",
+			"maternalOutcome": "healthy",
+			"birthOutcome": "healthy",
+			"FPMethod": "IUCD",
+			"lastUpdateDateTime": "16/04/2015 20:00:00",
+			"ANC":[
+				{
+					"monthID": 0,
+					"ASHAVisit": "16/04/2015",
+					"ANMVisit":"2/11/2014",
+					"weight": 50,
+					"TT": 10,
+					"HB": 11,
+					"paleEye": true,
+					"bleeding": true,
+					"malaria": true,
+					"IFATablets": 12,
+					"BP": "high",
+					"swelling": true,
+					"headache": true,
+					"urineProtein": true,
+					"urineSugar": true,
+					"nightBlindness": true,
+					"foulSmellingDischarge": true,
+					"fever": true,
+					"otherInfection": true,
+					"lastSyncDateTime": "16/04/2015 20:00:00",
+					"lastUpdateDateTime": "16/04/2015 20:00:00"
+					},{
+					"monthID": 1,
+					"ASHAVisit": "16/04/2015",
+					"ANMVisit":"2/11/2014",
+					"weight": 50,
+					"TT": 10,
+					"HB": 11,
+					"paleEye": true,
+					"bleeding": true,
+					"malaria": true,
+					"IFATablets": 12,
+					"BP": "high",
+					"swelling": true,
+					"headache": true,
+					"urineProtein": true,
+					"urineSugar": true,
+					"nightBlindness": true,
+					"foulSmellingDischarge": true,
+					"fever": true,
+					"otherInfection": true,
+					"lastSyncDateTime": "16/04/2015 20:00:00",
+					"lastUpdateDateTime": "16/04/2015 20:00:00"
+					}]
+		}],
+		"childArray":
+		[{			
+			"motherID": "0121230250012001",
+			"childID" : "0121230250012001",
+			"motherDisplayID" :"",
+			"displayID" : "",
+			"name": "gh",
+			"dob": "9/10/2014",
+			"motherName": "ggcc",
+			"fatherName":"fygfgn",
+			"sex":  "Girl",
+			"house":"0256",
+			"slum":"123",
+			"city":"012",
+			"worker":"025",
+			"registrationDate":"2/11/2014",
+			"lastSyncDateTime": "16/04/2015 20:00:00",
+			"lastUpdateDateTime": "16/04/2015 20:00:00",
+			"childDetails":{
+				"NewBorn":[	
+					{	"Day":"1",
+						"Weight":"2",
+						"AshaVisit":"9/10/2014",
+						"ANMCheckup":"Y",
+						"BF":"Y",
+						"WrappedCapped":"N",
+						"isSick":"N",
+						"lastSyncDateTime": "16/04/2015 20:00:00",
+						"lastUpdateDateTime": "16/04/2015 20:00:00"
+					},
+					{	"Day":"2",
+						"Weight":"2",
+						"AshaVisit":"9/10/2014",
+						"ANMCheckup":"Y",
+						"BF":"Y",
+						"WrappedCapped":"N",
+						"isSick":"N",
+						"lastSyncDateTime": "16/04/2015 20:00:00",
+						"lastUpdateDateTime": "16/04/2015 20:00:00"
+					}
+				],
+				"Immunization":[	
+					{	"Month":"0",
+						"BCG":"9/10/2014",
+						"OPV":"9/10/2014",
+						"HEP-B":"9/10/2014",
+						"DPT":"9/10/2014",
+						"Measles":"9/10/2014",
+						"VitaminA":"9/10/2014",
+						"Weight":"2",
+						"isSick":"N",
+						"lastSyncDateTime": "16/04/2015 20:00:00",
+						"lastUpdateDateTime": "16/04/2015 20:00:00"
+					},
+					{	"Month":"1",
+						"BCG":"9/10/2014",
+						"OPV":"9/10/2014",
+						"HEP-B":"9/10/2014",
+						"DPT":"9/10/2014",
+						"Measles":"9/10/2014",
+						"VitaminA":"9/10/2014",
+						"Weight":"2",
+						"isSick":"N",
+						"lastSyncDateTime": "16/04/2015 20:00:00",
+						"lastUpdateDateTime": "16/04/2015 20:00:00"
+					}
+				]
+			}
+		}]
+	
+}	
