@@ -19,17 +19,13 @@ angular.module('starter.controllers', ['ngCordova'])
   };
 })
 
-.controller('FileCtrl', function($scope, $cordovaFile) {
+.controller('FileCtrl', function($scope, $cordovaFile, $q) {
   $scope.syncData = function() {
     document.addEventListener('deviceready', function () {
       // Check in the local storage if MCAS_APP_LOCKED is not defined
       var UHI_MCAS_APP_LOCKED = localStorage.getItem('UHI_MCAS_APP_LOCKED');
-      alert(UHI_MCAS_APP_LOCKED);
       var womenData = JSON.parse(localStorage.getItem('UHI_MCAS'));
-      alert("womenData from local storage " + JSON.stringify(womenData));
-      alert("UHI_MCAS_APP_LOCKED " + UHI_MCAS_APP_LOCKED);
       if (UHI_MCAS_APP_LOCKED === null) {
-        alert("UHI_MCAS_APP_LOCKED is null");
         UHI_MCAS_APP_LOCKED = 'false';
         localStorage.setItem('UHI_MCAS_APP_LOCKED', UHI_MCAS_APP_LOCKED);
         // Check if the out folder exists. If not create the out folder.
@@ -58,10 +54,8 @@ angular.module('starter.controllers', ['ngCordova'])
       } else  { // UHI_MCAS_APP_LOCKED is defined
         if (UHI_MCAS_APP_LOCKED === 'false') { // UHI_MCAS_APP_LOCKED is false
           // Check if the out folder exists. If not create the out folder.
-          alert("UHI_MCAS_APP_LOCKED is false");
           // CREATE
           $cordovaFile.createDir(cordova.file.externalDataDirectory, "out", false);
-          alert(womenData);
           // Write the file with the local storage data
           var CSVfiles = jsonToCSVConvertor(womenData); 
           $cordovaFile.writeFile(cordova.file.externalDataDirectory, "out/woman.csv", CSVfiles.woman, true)
@@ -84,7 +78,6 @@ angular.module('starter.controllers', ['ngCordova'])
             });
         } else { 
           if (UHI_MCAS_APP_LOCKED === 'true') { // UHI_MCAS_APP_LOCKED is true
-            alert("In else");
             // Check if the the in folder exists, if not, then create otherwise check for the file
             $cordovaFile.createDir(cordova.file.externalDataDirectory, "in", false)
               .then(function (success) {
@@ -92,24 +85,39 @@ angular.module('starter.controllers', ['ngCordova'])
               }, function (error) {
                 // error
                 // Read the woman.csv, womanAnc.csv, womanfp.csv and assign it to the local variable
-                var womanCSV = readCSVFile($cordovaFile, "in/woman.csv");
-                var womanAncCSV = readCSVFile($cordovaFile, "in/woman_anc_visits.csv");
-                var womanFpCSV = readCSVFile($cordovaFile, "in/woman_fp.csv");
+                try {
+                  var womanCSVpromise = readCSVFile($cordovaFile, $q, "in/woman.csv");
+                  var womanAncCSVpromise = readCSVFile($cordovaFile, $q, "in/woman_anc_visits.csv");
+                  var womanFpCSVpromise = readCSVFile($cordovaFile, $q, "in/woman_fp.csv");
 
-                // Convert CSV to JSON
-                womenData = csvToJsonConvertor(womanCSV, womanAncCSV, womanFpCSV);
+                  var womanAllpromise = $q.all([womanCSVpromise, womanAncCSVpromise, womanFpCSVpromise]);
+                  womanAllpromise.then(function(success){
+                    var womanCSV = success[0];
+                    var womanAncCSV = success[1];
+                    var womanFpCSV = success[2];
 
-                // Set the local storage with the latest data from the file
-                localStorage.setItem('UHI_MCAS', womenData);
-                
-                // delete all the files from the in folder
-                $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman.csv");
-                $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman_anc_visits.csv");
-                $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman_fp.csv");
-                // set MCAS_APP_LOCKED to false
-                UHI_MCAS_APP_LOCKED = 'false';
-                localStorage.setItem('UHI_MCAS_APP_LOCKED', UHI_MCAS_APP_LOCKED);
-                alert("Sync completed successfully. You can disconnect now");
+                    // Convert CSV to JSON
+                    womenData = csvToJsonConvertor(womanCSV, womanAncCSV, womanFpCSV);
+                    if (womenData) {
+                      // Set the local storage with the latest data from the file
+                      localStorage.setItem('UHI_MCAS', womenData);
+                    } 
+                    
+                    // delete all the files from the in folder
+                    $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman.csv");
+                    $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman_anc_visits.csv");
+                    $cordovaFile.removeFile(cordova.file.externalDataDirectory, "in/woman_fp.csv");
+                    // set MCAS_APP_LOCKED to false
+                    UHI_MCAS_APP_LOCKED = 'false';
+                    localStorage.setItem('UHI_MCAS_APP_LOCKED', UHI_MCAS_APP_LOCKED);
+                    alert("Sync completed successfully. You can disconnect now");
+                  }, function(error) {
+                    alert(JSON.stringify(error));
+                  });
+                }
+                catch (e) {
+                  alert(e);
+                }
               });
           }
         }
@@ -118,46 +126,52 @@ angular.module('starter.controllers', ['ngCordova'])
   };
 });
 
-function readCSVFile($cordovaFile, fileName) {
+function readCSVFile($cordovaFile, $q, fileName) {
+
+  var deferred = $q.defer();
   var promise = $cordovaFile.checkFile(cordova.file.externalDataDirectory, fileName);
   promise.then(function (success) {
     // read the file
     $cordovaFile.readAsText(cordova.file.externalDataDirectory, fileName)
       .then(function (success) {
-          return success;
+          deferred.resolve(success);
       }, function (error) {
-        throw error;
+        deferred.reject(error);
       })
   }, function (error) {
-    throw error;
+    deferred.reject(error);
   })
+  return deferred.promise;
 }
 
 function csvToJsonConvertor(csvWoman, csvWomanAncVisits, csvWomanFp) {
-    var womanRows = csvWoman.split("\n");
-    var womanAncVisitRows = csvWomanAncVisits.split("\n");
-    var womanFpRows = csvWomanFp.split("\n");
-    
-    var result = [];
-    var finalResult = [];
-    var finalObj = {};
-    var womanHeaders = womanRows[0].split(",");
+  if (!csvWoman || !csvWomanAncVisits || !csvWomanFp) {
+    alert("undefined files");
+    return;
+  };
+  var womanRows = csvWoman.split("\n");
+  var womanAncVisitRows = csvWomanAncVisits.split("\n");
+  var womanFpRows = csvWomanFp.split("\n");
+  
+  var result = [];
+  var finalResult = [];
+  var finalObj = {};
+  var womanHeaders = womanRows[0].split(",");
 
-    for(var i=1;i<womanRows.length;i++) { 
-      var obj = {}; 
-      var displayID = "";  
-      var womanRow=womanRows[i].split(","); 
-  
-      for(var j=0;j<womanHeaders.length;j++) { 
-        obj[womanHeaders[j]] = womanRow[j];
-        if (womanHeaders[j] === 'displayID')
-            displayID = womanRow[j];
-      } 
-      obj["familyPlanningVisits"] = csvToJsonForFp(womanFpRows, displayID);
-      obj["ANC"] = csvToJsonForFp(womanAncVisitRows, displayID);
-      result.push(obj); 
-  
+  for(var i=1;i<womanRows.length;i++) { 
+    var obj = {}; 
+    var displayID = "";  
+    var womanRow=womanRows[i].split(","); 
+
+    for(var j=0;j<womanHeaders.length;j++) { 
+      obj[womanHeaders[j]] = womanRow[j];
+      if (womanHeaders[j] === 'displayID')
+          displayID = womanRow[j];
     } 
+    obj["familyPlanningVisits"] = csvToJsonForFp(womanFpRows, displayID);
+    obj["ANC"] = csvToJsonForFp(womanAncVisitRows, displayID);
+    result.push(obj); 
+} 
    
     finalObj["womanArray"] = result;
     finalResult.push(finalObj);
@@ -207,6 +221,7 @@ function jsonToCSVConvertor(JSONData) {
     {    
       //This loop will extract the label from 1st index of on array
       for (var index in arrData["womanArray"][0]) {
+        if (!((index.trim() === "familyPlanningVisits") || (index.trim() === "ANC")))
           //Now convert each value to string and comma-seprated
           womanLabelRow += index + ',';
       }
@@ -244,7 +259,8 @@ function jsonToCSVConvertor(JSONData) {
                   }
           }
 
-          womanRow.slice(0, womanRow.length - 1);
+          //womanRow.slice(0, womanRow.length - 1);
+          womanRow = womanRow.slice(0, -1);
           
           //add a line break after each row
           CSVWoman += womanRow + '\r\n';
@@ -274,8 +290,7 @@ function generateFpLabelRow(fpObject) {
     fpLabelRow = fpLabelRow.slice(0, -1);
     
     //append Label row with line break
-    fpLabelRow += fpLabelRow + '\r\n';
-    
+    fpLabelRow += '\r\n';
     return fpLabelRow;
 }
 
@@ -289,12 +304,11 @@ function jsonToCSVFp(displayID, fpObject) {
             fpRow += '"' + fpObject[i][index] + '",';
         }
         
-        fpRow.slice(0, fpRow.length - 1);
-        alert(fpRow);
+        //fpRow.slice(0, fpRow.length - 1);
+        fpRow = fpRow.slice(0, -1);
         
         //add a line break after each row
         csvfp += fpRow + '\r\n';
-        alert(csvfp);
     }
 
    // if (fpRow == '') {        
