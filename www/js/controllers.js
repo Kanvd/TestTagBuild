@@ -22,15 +22,12 @@ angular.module('starter.controllers', ['ngCordova'])
 .controller('FileCtrl', function($scope, $cordovaFile, $q) {
   $scope.syncData = function() {
     document.addEventListener('deviceready', function () {
-      alert("Test");
       // Check in the local storage if MCAS_APP_LOCKED is not defined
       var UHI_MCAS_APP_LOCKED = localStorage.getItem('UHI_MCAS_APP_LOCKED');
       var UHI_MCAS = localStorage.getItem('UHI_MCAS');
-      alert(UHI_MCAS);
       var womenData = {};
       if ((UHI_MCAS != '') && (UHI_MCAS != null)) 
         womenData = JSON.parse(localStorage.getItem('UHI_MCAS'));
-      alert(UHI_MCAS_APP_LOCKED);
       if (UHI_MCAS_APP_LOCKED === null) {
         UHI_MCAS_APP_LOCKED = 'false';
         localStorage.setItem('UHI_MCAS_APP_LOCKED', UHI_MCAS_APP_LOCKED);
@@ -76,11 +73,9 @@ angular.module('starter.controllers', ['ngCordova'])
         if (UHI_MCAS_APP_LOCKED === 'false') { // UHI_MCAS_APP_LOCKED is false
           // Check if the out folder exists. If not create the out folder.
           // CREATE
-          alert("UHI_MCAS_APP_LOCKED - "  + UHI_MCAS_APP_LOCKED);
           $cordovaFile.createDir(cordova.file.externalDataDirectory, "out", false);
           // Write the file with the local storage data
           var CSVfiles = jsonToCSVConvertor(womenData); 
-          alert("after jsonToCSVConvertor");
           $cordovaFile.writeFile(cordova.file.externalDataDirectory, "out/woman.csv", CSVfiles.woman, true)
             .then (function (success) {
               $cordovaFile.writeFile(cordova.file.externalDataDirectory, "out/woman_fp.csv", CSVfiles.fp, true)
@@ -117,7 +112,6 @@ angular.module('starter.controllers', ['ngCordova'])
         } else { 
           if (UHI_MCAS_APP_LOCKED === 'true') { // UHI_MCAS_APP_LOCKED is true
             // Check if the the in folder exists, if not, then create otherwise check for the file
-            alert("UHI_MCAS_APP_LOCKED - " + UHI_MCAS_APP_LOCKED);
             $cordovaFile.createDir(cordova.file.externalDataDirectory, "in", false)
               .then(function (success) {
                 // success
@@ -144,41 +138,23 @@ angular.module('starter.controllers', ['ngCordova'])
                     var childNewCSV = success[4];
                     var childImmunizationCSV = success[5];
 
-                    alert("child CSV -" + childCSV);
-                    alert("childNewCSV CSV -" + childNewCSV);
-                    alert("childImmunizationCSV CSV -" + childImmunizationCSV);
-
-
                     // Convert CSV to JSON
-                    alert("before csvToJsonConvertor");
                     womenData = JSON.parse(csvToJsonConvertor(womanCSV, womanAncCSV, womanFpCSV));
-                    alert("after csvToJsonConvertor");
-                    alert("Woman Data - " + womenData);
                     var childData = {};
                     var fullData = {};
                     try {
                       childData = JSON.parse(csvToJsonConvertorChild(childCSV, childNewCSV, childImmunizationCSV));
-                      alert("child data - " + childData);
                       if (womenData != null) {
-                        alert(womenData);
-                        alert("womanArray - " + womenData["womanArray"]);
                         fullData.womanArray = womenData.womanArray;
-                        alert(JSON.stringify(fullData));
                       }
                       if (childData != null) {
-                        alert(childData);
-                        alert(childData["childArray"]);
                         fullData.childArray = childData.childArray;
-                        alert(JSON.stringify(fullData));
                       }
 
                     }
                     catch(e) {
                       alert("Error message - " + e);
                     }
-                    //alert("child data - " + csvToJsonConvertorChild(childCSV, childNewCSV, childImmunizationCSV));
-                    alert("after csvToJsonConvertorChild");
-                    alert("fullData - " + JSON.stringify(fullData));
                     if (fullData != null) {
                       // Set the local storage with the latest data from the file
                       localStorage.setItem('UHI_MCAS', JSON.stringify(fullData));
@@ -217,7 +193,6 @@ function readCSVFile($cordovaFile, $q, fileName) {
   var promise = $cordovaFile.checkFile(cordova.file.externalDataDirectory, fileName);
   promise.then(function (success) {
     // read the file
-    alert("readCSVFile file Name - " + fileName);
     $cordovaFile.readAsText(cordova.file.externalDataDirectory, fileName)
       .then(function (success) {
           deferred.resolve(success);
@@ -225,7 +200,6 @@ function readCSVFile($cordovaFile, $q, fileName) {
         deferred.reject(error);
       })
   }, function (error) {
-    alert("file Name - " + fileName + " Error - " + error);
     deferred.reject(error);
   })
   return deferred.promise;
@@ -297,9 +271,6 @@ function csvToJsonConvertorChild(csvChild, csvChildNew, csvChildImmunization) {
     alert("undefined files");
     return;
   };
-  alert("csvChild - " + csvChild);
-  alert("csvChildNew - " + csvChildNew);
-  alert("csvChildImmunization - " + csvChildImmunization);
   var childRows = csvChild.split("\n");
   var childNewRows = csvChildNew.split("\n");
   var childImmunizationRows = csvChildImmunization.split("\n");
@@ -376,10 +347,8 @@ function jsonToCSVConvertor(JSONData) {
     var newBornLabelRow = "";
     var immunizationLabelRow = "";
     
-    alert("jsonToCSVConvertor arrData - " + JSON.stringify(arrData));
     if (arrData != null) 
     {    
-      alert("inside if");
       if (!(arrData["womanArray"] == null)) {
         //This loop will extract the label from 1st index of on array
         for (var index in arrData["womanArray"][0]) {
@@ -427,18 +396,8 @@ function jsonToCSVConvertor(JSONData) {
             //add a line break after each row
             CSVWoman += womanRow + '\r\n';
         }
-        alert("one line before arrData[childArray][0]");
-        alert("value - " + arrData["childArray"]);
       }
       
-      //alert("arrData[childArray][0] - " + arrData["childArray"][0]);
-
-      if (arrData["childArray"] == null) {
-        alert("in if statement");
-      }
-      else {
-        alert("in else statement");
-      }
       
       //////////////////////////////////////////////////////////////////
       /////// Child Data logic /////////////////////////////////////////
@@ -491,14 +450,7 @@ function jsonToCSVConvertor(JSONData) {
         }        
       }
     }
-    alert("end of child data parsing");
-
-      ///////// Child Data logic //////////////////////////////////////
-    //  if (CSVWoman == '') {        
-    //      alert("Invalid data");
-    //      return;
-     // }   
-
+  
     CSVfiles["woman"] = CSVWoman;
     CSVfiles["fp"] = CSVWomanFp;
     CSVfiles["anc"] = CSVWomanAnc;
